@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_errors(res, title="", show=True, save_file="fig.png"):
+def plot_metrics(res, title="", show=True, save_file="fig.png"):
     keys = list(res.keys())
     ncol = 4
     nrow = 2
@@ -17,7 +17,6 @@ def plot_errors(res, title="", show=True, save_file="fig.png"):
             axs[i, j].grid()
 
     fig.suptitle(title, fontsize=7)
-    #plt.plot(t, res, linewidth=3)
     plt.savefig(save_file, dpi=200, bbox_inches="tight")
     if show:
         plt.show()

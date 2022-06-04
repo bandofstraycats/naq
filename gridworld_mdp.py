@@ -29,7 +29,7 @@ class GridworldMDP():
         grid_map_array = np.array(grid_map_array)
         return grid_map_array
 
-    def __init__(self, plan_file='plan0.txt', gamma=0.9, random_slide=0.0, act_break_ties=False):
+    def __init__(self, plan_file='plan0.txt', gamma=0.9, random_slide=0.0):
         grid_map = self._read_grid_map(plan_file)
         shape = grid_map.shape
 
@@ -69,17 +69,13 @@ class GridworldMDP():
         R = np.zeros((nS, nA))
 
         it = np.nditer(grid_map, flags=['multi_index'])
-        state_vars = np.zeros((nS, 3))
+        state_vars = np.zeros((nS, 2))
 
         while not it.finished:
             s = it.iterindex
             x, y = it.multi_index
 
-            pos = np.array([x, y])
-            #target_dist = np.linalg.norm(target - pos)
-            #target_theta = np.arctan2(target[1] - pos[1], target[0] - pos[0])
-            state_vars[s] = [(s+1.)/(MAX_X*MAX_Y), (x+1.)/MAX_X, (y+1.)/MAX_Y]
-            #state_vars[s] = [target_dist, np.cos(target_theta), np.sin(target_theta)]
+            state_vars[s] = [x, y]
 
             is_done = grid_map[x, y] == 3 or grid_map[x, y] == 1
 
@@ -91,9 +87,8 @@ class GridworldMDP():
             elif grid_map[x, y] == 2:
                 reward = -5.0
 
-            bonus = [-0.01, 0.01, -0.05, 0.05]
             for a in range(nA):
-                R[s, a] = reward + bonus[a] if act_break_ties else reward
+                R[s, a] = reward
 
             # Terminal state
             if is_done:
@@ -106,7 +101,6 @@ class GridworldMDP():
                         P[s, action, func(s)] = 1.0 - 2 * random_slide
                         P[s, action, ns_up(func(s))] += random_slide
                         P[s, action, ns_down(func(s))] += random_slide
-                        #P[s, action, ns_left(func(s))] += random_slide
                     else:
                         P[s, action, func(s)] = 1.0
 
@@ -115,45 +109,21 @@ class GridworldMDP():
         # Initial state distribution is uniform
         self.d_0 = np.reshape(np.ones(nS) / nS, [-1, 1])
 
-        # We expose the model of the environment for educational purposes
-        # This should not be used in any model-free learning algorithm
+        # MDP
         self.P = P
         self.R = R
-
-        # gamma
         self.gamma = gamma
-        # counts
         self.nS = nS
         self.nA = nA
         self.shape = shape
+
         # state features
         self.state_vars = state_vars
-        #print(state_vars)
 
         # test
         self.test_p_stochastic()
 
-    def mdp_to_lp_primal(self):
-        """
-        min d_0^T v
-        s.t. Ax >= b
-        :return: A,b
-        """
-        A_a = list()
-        for a in range(self.nA):
-            A_a.append(np.identity(self.nS) - self.gamma * self.P[:, a, :])
-
-        A = np.concatenate(A_a, axis=0)
-        assert np.shape(A) == (self.nS * self.nA, self.nS)
-
-        R_rav = np.reshape(np.transpose(self.R), [-1])
-        assert np.shape(R_rav) == (self.nS * self.nA, )
-
-        return A, R_rav
-
     def test_p_stochastic(self):
         for s in range(self.nS):
             np.testing.assert_array_almost_equal(self.P[s, :, :].sum(axis=1), np.ones(self.nA), decimal=2)
-            # print(self.P[s, :, :])
-            # print('----')
         print("P is stochastic")
