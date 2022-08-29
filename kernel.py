@@ -1,14 +1,10 @@
 import numpy as np
 from numpy import linalg as LA
-from sklearn.preprocessing import normalize
 
-def get_kernel(kernel_type, state_vars, nS):
+def get_kernel(kernel_type, nS):
 
     # dot product in finite state space
     dot_product = np.eye(nS)
-    #state_vars = 1. + state_vars # dot-product is positive
-    #state_vars = normalize(state_vars)
-    #kernel = np.matmul(state_vars, np.transpose(state_vars))
 
     # normalized kernel
     if kernel_type == 'ntk':
@@ -36,7 +32,7 @@ def get_kernel(kernel_type, state_vars, nS):
     assert np.all(np.logical_or(w > 0, np.isclose(w, 0)))
     if np.any(np.isclose(w, 0)):
         print("Warning: Convergence might not be monotonic")
-    kernel_norm = LA.norm(kernel, 2)
+    kernel_norm = LA.norm(kernel, np.inf)
     print("Kernel norm")
     print(kernel_norm)
     assert kernel_norm <= 1

@@ -80,7 +80,7 @@ def modified_policy_iteration(mdp, epsilon=None, max_iter=None,
               'max_opt_v': [], 'avg_opt_v': []}
 
     if is_kernel:
-        kernel = get_kernel(kernel_type, mdp.state_vars, mdp.nS)
+        kernel = get_kernel(kernel_type, mdp.nS)
         kernel_optimality = (1. / (1 - mdp.gamma)) * \
                             np.max(np.abs(np.matmul(np.eye(mdp.nS) - kernel,
                                                     value_iteration(V_opt, greedy_step(V_opt), 1,
