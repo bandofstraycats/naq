@@ -14,7 +14,7 @@ def modified_policy_iteration(mdp, epsilon=None, max_iter=None,
                               is_kernel=False, kernel_type=None,
                               is_soft=False, beta=None,
                               V_opt=None,
-                              log_freq=1):
+                              log_steps=1):
 
     def Q_V(V):
         q_v = mdp.R + mdp.gamma * np.matmul(mdp.P, V)
@@ -121,11 +121,11 @@ def modified_policy_iteration(mdp, epsilon=None, max_iter=None,
         # Iteration
         n += 1
 
-        if n % log_freq == 0:
+        if n % log_steps == 0:
             print('N, ', n, ', current delta', delta)
             out_str = ""
             for key in metrics.keys():
-                out_str += "{}:{:.2f}\t".format(key, np.average(metrics[key][-log_freq:]))
+                out_str += "{}:{:.2f}\t".format(key, np.average(metrics[key][-log_steps:]))
             print(out_str)
         # Check stopping criteria
         if (max_iter and n >= max_iter) or (epsilon and delta < epsilon):
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     parser.add_argument('--save-pi', help='File path to save policy', default=None)
     parser.add_argument('--save-q', help='File path to save Q-function', default=None)
     # log
-    parser.add_argument('--log-freq', help='Log frequency', default=1, type=int)
+    parser.add_argument('--log-steps', help='Log steps', default=1, type=int)
 
     args = parser.parse_args()
     print(args)
@@ -181,7 +181,7 @@ if __name__ == "__main__":
                                                              is_kernel=args.is_kernel, kernel_type=args.kernel_type,
                                                              is_soft=args.is_soft, beta=args.beta,
                                                              V_opt=V_opt,
-                                                             log_freq=args.log_freq)
+                                                             log_steps=args.log_steps)
 
     print("Policy Probability Distribution:")
     print(pi)

@@ -20,15 +20,15 @@ Description of parameters is provided in the help message
 
 ### Value Iteration
 - Value Iteration 
-`python kernel_vi.py --plan plans/plan0.txt --random-slide 0.15 --opt-v plans/opt_v0_rew_5_rs_0.15.txt --max-iter 20 --s 1 --plot metrics.png`
+`python kernel_vi.py --plan plans/plan0.txt --random-slide 0.15 --opt-v plans/opt_v0_rew_5_rs_0.15.txt --max-iter 20 --plot metrics.png`
 - Approximate Value Iteration with sampled Bellman operator at 10 states
-`python kernel_vi.py --plan plans/plan0.txt --random-slide 0.15 --opt-v plans/opt_v0_rew_5_rs_0.15.txt --max-iter 100 --s 10 --log-freq 10 --plot metrics.png`
+`python kernel_vi.py --plan plans/plan0.txt --random-slide 0.15 --opt-v plans/opt_v0_rew_5_rs_0.15.txt --max-iter 100 --s 10 --log-steps 10 --plot metrics.png`
 
 ### Kernel Value Iteration
 - Kernel Value Iteration with Neural Tangent Kernel
+`python kernel_vi.py --plan plans/plan0.txt --random-slide 0.15 --opt-v plans/opt_v0_rew_5_rs_0.15.txt --max-iter 20 --kernel --kernel-type ntk --plot metrics.png`
+- Approximate Kernel Value Iteration with Neural Tangent Kernel and sampled Bellman operator at one state
 `python kernel_vi.py --plan plans/plan0.txt --random-slide 0.15 --opt-v plans/opt_v0_rew_5_rs_0.15.txt --max-iter 20 --s 1 --kernel --kernel-type ntk --plot metrics.png`
-- Approximate Kernel Value Iteration with Neural Tangent Kernel and sampled Bellman operator at 10 states
-`python kernel_vi.py --plan plans/plan0.txt --random-slide 0.15 --opt-v plans/opt_v0_rew_5_rs_0.15.txt --max-iter 100 --s 10 --log-freq 10 --kernel --kernel-type ntk --plot metrics.png`
 
 ### Aggregate performance metrics
 Generates NUM_RUNS runs of Approximate Smooth Kernel Value Iteration across random seeds.
