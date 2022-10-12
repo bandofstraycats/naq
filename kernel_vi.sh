@@ -10,9 +10,9 @@ S=1
 kernel_type=ntk
 beta=0.1
 
-PLAN=plans/plan7.txt
-OPT_V=plans/opt_v7_rew_5_rs_0.15.txt
-KERNEL_OPT_V=plans/kernel_${kernel_type}_beta_${beta}_opt_v7_rew_5_rs_0.15.txt
+PLAN=plans/plan0.txt
+OPT_V=plans/opt_v0_rew_5_rs_0.15.txt
+KERNEL_OPT_V=plans/kernel_${kernel_type}_beta_${beta}_opt_v0_rew_5_rs_0.15.txt
 EXPORT_DIR=export
 
 if [ $DRY_RUN -eq 0 ]

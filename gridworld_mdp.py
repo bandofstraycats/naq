@@ -5,12 +5,7 @@ DOWN = 1
 RIGHT = 2
 LEFT = 3
 
-UP_RIGHT = 4
-UP_LEFT = 5
-DOWN_RIGHT = 6
-DOWN_LEFT = 7
-
-actions_list = [UP, DOWN, RIGHT, LEFT] #, UP_RIGHT, UP_LEFT, DOWN_RIGHT, DOWN_LEFT]
+actions_list = [UP, DOWN, RIGHT, LEFT]
 
 class GridworldMDP():
 
@@ -57,13 +52,7 @@ class GridworldMDP():
             x,y = get_xy(ss)
             return ss if y == 0 or grid_map[x, y - 1] == 1 else ss - 1
 
-        ns_up_right = lambda ss: ns_right(ns_up(ss))
-        ns_up_left = lambda ss: ns_left(ns_up(ss))
-        ns_down_right = lambda ss: ns_right(ns_down(ss))
-        ns_down_left = lambda ss: ns_left(ns_down(ss))
-
-        actions_func_list = [ns_up, ns_down, ns_right, ns_left, ns_up_right, ns_up_left, ns_down_right,
-                             ns_down_left]
+        actions_func_list = [ns_up, ns_down, ns_right, ns_left]
 
         P = np.zeros((nS, nA, nS))
         R = np.zeros((nS, nA))

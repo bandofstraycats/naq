@@ -39,12 +39,12 @@ def modified_policy_iteration(mdp, epsilon=None, max_iter=None,
         V_update = deepcopy(V)
         for s in range(mdp.nS):
             V_update[s] = 0
-            playing_policy = pi[s, :]
+            pi_s = pi[s, :]
 
-            sampled_actions = np.random.choice(mdp.nA, size=nb_samples, p=playing_policy)
-            for action in sampled_actions:
-                next_state = np.random.choice(mdp.nS, size=1, p=mdp.P[s, action, :])
-                V_update[s] += empirical_bellman_op(mdp.R[s, action], V[next_state],
+            samples_action = np.random.choice(mdp.nA, size=1, p=pi_s)
+            samples_next_state = np.random.choice(mdp.nS, size=nb_samples, p=mdp.P[s, samples_action[0], :])
+            for next_state in samples_next_state:
+                V_update[s] += empirical_bellman_op(mdp.R[s, samples_action[0]], V[next_state],
                                                     is_soft=is_soft, beta=beta)
             V_update[s] /= nb_samples
 
@@ -76,18 +76,10 @@ def modified_policy_iteration(mdp, epsilon=None, max_iter=None,
     V = np.zeros(mdp.nS)
     pi = (1./mdp.nA) * np.ones_like(mdp.R)
     V_k, pi_k = list(), list()
-    metrics = {'beta': [],
-              'max_opt_v': [], 'avg_opt_v': []}
+    metrics = {'beta': [], 'max_opt_v': [], 'avg_opt_v': []}
 
     if is_kernel:
         kernel = get_kernel(kernel_type, mdp.nS)
-        kernel_optimality = (1. / (1 - mdp.gamma)) * \
-                            np.max(np.abs(np.matmul(np.eye(mdp.nS) - kernel,
-                                                    value_iteration(V_opt, greedy_step(V_opt), 1,
-                                                                    is_soft=is_soft, beta=beta)
-                                                    )))
-        print("Kernel optimality upper bound")
-        print(kernel_optimality)
 
     n = 0
     while True:
@@ -143,45 +135,47 @@ def modified_policy_iteration(mdp, epsilon=None, max_iter=None,
     return pi, V, Q_V(V), V_k, pi_k, metrics
 
 if __name__ == "__main__":
-    # execute only if run as a script
     import argparse
 
-    parser = argparse.ArgumentParser(description='Approximate Smooth Kernel Modified Policy Iteration')
-    parser.add_argument('--plan', help='Plan file', default='plans/plan7.txt', required=True)
+    parser = argparse.ArgumentParser(description='Approximate Smooth Kernel Value Iteration')
+    parser.add_argument('--plan', help='Plan file', default='plans/plan0.txt', required=True)
     # random slide
     parser.add_argument('--random-slide', help='Random slide for GridWorld', default=0.0, type=float)
     # kernel
     parser.add_argument('--kernel', dest='is_kernel', action='store_true', help='Set Kernel VI')
     parser.add_argument('--kernel-type', help='Kernel type for Kernel VI', default='linear', type=str)
-    # soft bellman operator
+    # soft Bellman operator
     parser.add_argument('--soft', dest='is_soft', action='store_true', help='Set Soft Bellman operator')
     parser.add_argument('--beta', help='Beta for soft Bellman operator', default=1.0, type=float)
     # stopping
     parser.add_argument('--epsilon', help='Stopping criteria: Epsilon difference between subsequent iterates', default=None, type=float)
     parser.add_argument('--max-iter', help='Stopping criteria: Maximum number of iterations', default=None, type=int)
     # m
-    parser.add_argument('--m', help='Number of applications of Bellman operator', default=1, type=float)
+    parser.add_argument('--m', help='Number of applications of Bellman operator in MPI', default=1, type=float)
     # number of states to sample
     parser.add_argument('--s', help='Number of samples to evaluate Bellman operator', default=None, type=int)
-    # opt v
-    parser.add_argument('--opt-v', help='Optimal value function file', default=None)
+    # optimal value function
+    parser.add_argument('--opt-v', help='File path to optimal value function', default=None)
     # discount factor
     parser.add_argument('--gamma', help='Discount factor', default=0.9, type=float)
-    # plots
-    parser.add_argument('--plot', default=None, help='Save plot of metrics to png file')
-    parser.add_argument('--export', default=None, help='Export metrics to csv file')
-    # save v and pi
-    parser.add_argument('--save-v', help='Save value function to file', default=None)
-    parser.add_argument('--save-pi', help='Save policy to file', default=None)
-    parser.add_argument('--save-q', help='Save Q-function to file', default=None)
+    # plot
+    parser.add_argument('--plot', default=None, help='File path to save plot of metrics')
+    parser.add_argument('--export', default=None, help='File path to export metrics in CSV format')
+    # save
+    parser.add_argument('--save-v', help='File path to save value function', default=None)
+    parser.add_argument('--save-pi', help='File path to save policy', default=None)
+    parser.add_argument('--save-q', help='File path to save Q-function', default=None)
     # log
-    parser.add_argument('--log-freq', help='Logging frequency', default=1, type=int)
+    parser.add_argument('--log-freq', help='Log frequency', default=1, type=int)
 
     args = parser.parse_args()
     print(args)
 
+    # Load environment
     mdp = GridworldMDP(plan_file=args.plan, gamma=args.gamma, random_slide=args.random_slide)
+    # Load optimal value function
     V_opt = np.loadtxt(args.opt_v) if args.opt_v else None
+    # Modified Policy Iteration
     pi, V, Q, V_k, pi_k, metrics = modified_policy_iteration(mdp, nb_samples=args.s, m=args.m,
                                                              epsilon=args.epsilon, max_iter=args.max_iter,
                                                              is_kernel=args.is_kernel, kernel_type=args.kernel_type,

@@ -48,6 +48,4 @@ p <- ggplot(summary_logs, aes(x=iter, y=y)) +
   theme(strip.text = element_text(size = 20), legend.text.align = 0) +
   labs(x='Iterations', y='', title="", color='')
 
-#show(p)
-
 ggsave("./plot.pdf", p, width=10, height=4)
